@@ -8,21 +8,23 @@ import (
 )
 
 func main() {
-	fetch(os.Args[1:])
+	err := fetch(os.Args[1:])
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%v\n", err)
+	}
 }
 
-func fetch(args []string) {
+func fetch(args []string) error {
 	for _, url := range args {
 		resp, err := http.Get(url)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "fetch: %v\n", err)
-			os.Exit(1)
+			return err
 		}
 		_, err = io.Copy(os.Stdout, resp.Body)
 		resp.Body.Close()
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "fetch: reading %s: %v\n", url, err)
-			os.Exit(1)
+			return err
 		}
 	}
+	return nil
 }
