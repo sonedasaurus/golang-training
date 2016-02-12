@@ -22,7 +22,7 @@ func PopCount(x uint64) int {
 func PopCount2(x uint64) int {
 	var sum int = 0
 	for i := 0; i < 8; i++ {
-		sum += int(pc[byte(byte(x>>(uint(i)*8)))])
+		sum += int(pc[byte(x>>(uint(i)*8))])
 	}
 	return sum
 }
