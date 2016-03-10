@@ -10,8 +10,8 @@ import (
 	"net/url"
 )
 
-// CreateIssues queries the GitHub issue tracker.
-func CreateIssues(title string) error {
+// closeIssues queries the GitHub issue tracker.
+func CloseIssues(number string, title string) error {
 	file, err := ioutil.ReadFile("./config/config.json")
 	if err != nil {
 		return err
@@ -25,7 +25,7 @@ func CreateIssues(title string) error {
 		title,
 	}
 	reqJSON, _ := json.Marshal(d)
-	req, err := http.NewRequest("POST", CreateIssuesURL, bytes.NewBuffer(reqJSON))
+	req, err := http.NewRequest("PATCH", EditIssuesURL+number, bytes.NewBuffer(reqJSON))
 	if err != nil {
 		return err
 	}
@@ -36,7 +36,7 @@ func CreateIssues(title string) error {
 	}
 	if resp.StatusCode != http.StatusOK {
 		resp.Body.Close()
-		return fmt.Errorf("create Issues failed: %s", resp.Status)
+		return fmt.Errorf("edit Issues failed: %s", resp.Status)
 	}
 	resp.Body.Close()
 	return nil
