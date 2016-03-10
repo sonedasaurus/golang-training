@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"net/http"
-	"os"
 
 	"./github"
 )
@@ -11,8 +10,7 @@ import (
 //!+template
 import "html/template"
 
-var issueList = template.Must(template.New("issuelist").Parse(`
-<h1>{{.TotalCount}} issues</h1>
+var issueTempl = template.Must(template.New("issue").Parse(`
 <table>
 <tr style='text-align: left'>
   <th>#</th>
@@ -20,25 +18,50 @@ var issueList = template.Must(template.New("issuelist").Parse(`
   <th>User</th>
   <th>Title</th>
 </tr>
-{{range .Items}}
 <tr>
   <td><a href='{{.HTMLURL}}'>{{.Number}}</a></td>
   <td>{{.State}}</td>
   <td><a href='{{.User.HTMLURL}}'>{{.User.Login}}</a></td>
   <td><a href='{{.HTMLURL}}'>{{.Title}}</a></td>
 </tr>
-{{end}}
+</table>
+`))
+
+var milestoneTempl = template.Must(template.New("issue").Parse(`
+<table>
+<tr style='text-align: left'>
+  <th>#</th>
+  <th>State</th>
+  <th>Title</th>
+</tr>
+<tr>
+  <td><a href='{{.HTMLURL}}'>{{.Number}}</a></td>
+  <td>{{.State}}</td>
+  <td><a href='{{.HTMLURL}}'>{{.Title}}</a></td>
+  <td>{{.Description}}</td>
+</tr>
 </table>
 `))
 
 func main() {
+	listResult, err := github.ListIssues()
+	if err != nil {
+		log.Fatal(err)
+	}
+	Milestone, err := github.Milestones()
+	if err != nil {
+		log.Fatal(err)
+	}
 	handler := func(w http.ResponseWriter, r *http.Request) {
-		result, err := github.SearchIssues(os.Args[1:])
-		if err != nil {
-			log.Fatal(err)
+		for _, item := range listResult {
+			if err := issueTempl.Execute(w, item); err != nil {
+				log.Fatal(err)
+			}
 		}
-		if err := issueList.Execute(w, result); err != nil {
-			log.Fatal(err)
+		for _, item := range Milestone {
+			if err := milestoneTempl.Execute(w, item); err != nil {
+				log.Fatal(err)
+			}
 		}
 	}
 	http.HandleFunc("/", handler)
