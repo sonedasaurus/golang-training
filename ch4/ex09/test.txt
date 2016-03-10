@@ -1,0 +1,4 @@
+hoge
+fuga fuga
+piyo piyo piyo
+foo bar baz
