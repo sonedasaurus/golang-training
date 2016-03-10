@@ -49,8 +49,9 @@ func corner(i, j int) (float64, float64) {
 
 func f(x, y float64) float64 {
 	r := math.Hypot(x, y) // distance from (0,0)
-	if math.IsNaN(r) {
+	v := math.Sin(r) / r
+	if math.IsNaN(v) {
 		return 0
 	}
-	return math.Sin(r) / r
+	return v
 }
