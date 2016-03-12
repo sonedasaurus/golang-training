@@ -16,8 +16,8 @@ func TestEcho(t *testing.T) {
 		want []string
 	}{
 		{`<a href="foo">Foo</a>`, []string{"foo"}},
-		{`<ul><li><a href="/foo">Foo</a><li><a href="/bar">Bar</a></ul>`, []string{"/foo", "/bar"}},
-		{`<ul><li><a href="/foo">Foo</a><li><a href="/bar">Bar</a></ul><ul><li><a href="/hoge">Hoge</a><li><a href="/piyo">Piyo</a></ul>`, []string{"/foo", "/bar", "/hoge", "/piyo"}},
+		{`<ul><li><a href="/foo">Foo</a></li><li><a href="/bar">Bar</a></li></ul>`, []string{"/foo", "/bar"}},
+		{`<ul><li><a href="/foo">Foo</a></li><li><a href="/bar">Bar</a></li></ul><ul><li><a href="/hoge">Hoge</a></li><li><a href="/piyo">Piyo</a></li></ul>`, []string{"/foo", "/bar", "/hoge", "/piyo"}},
 	}
 
 	for _, test := range tests {
