@@ -22,7 +22,7 @@ func htmlTagCount(counts map[string]int, n *html.Node) {
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Println("Usage: ./ex01 http://example.com")
+		fmt.Println("Usage: ./ex02 http://example.com")
 		os.Exit(1)
 	}
 	var counts map[string]int

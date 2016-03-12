@@ -15,9 +15,9 @@ func TestEcho(t *testing.T) {
 		args string
 		want map[string]int
 	}{
-		{`<a href="foo">Foo</a>`, map[string]int{"a": 1}},
-		{`<ul><li><a href="/foo">Foo</a></li><li><a href="/bar">Bar</a></li></ul>`, map[string]int{"a": 2, "ul": 1, "li": 2}},
-		{`<ul><li><a href="/foo">Foo</a></li><li><a href="/bar">Bar</a></li></ul><ul><li><a href="/hoge">Hoge</a></li><li><a href="/piyo">Piyo</a></li></ul>`, map[string]int{"a": 4, "ul": 2, "li": 4}},
+		{`<html><head></head><body><a href="foo">Foo</a></body></html>`, map[string]int{"html": 1, "head": 1, "body": 1, "a": 1}},
+		{`<html><head></head><body><ul><li><a href="/foo">Foo</a></li><li><a href="/bar">Bar</a></li></ul></body></html>`, map[string]int{"html": 1, "head": 1, "body": 1, "a": 2, "ul": 1, "li": 2}},
+		{`<html><head></head><body><ul><li><a href="/foo">Foo</a></li><li><a href="/bar">Bar</a></li></ul><ul><li><a href="/hoge">Hoge</a></li><li><a href="/piyo">Piyo</a></li></ul></body></html>`, map[string]int{"html": 1, "head": 1, "body": 1, "a": 4, "ul": 2, "li": 4}},
 	}
 
 	for _, test := range tests {
