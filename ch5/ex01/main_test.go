@@ -15,7 +15,7 @@ func TestEcho(t *testing.T) {
 		args string
 		want []string
 	}{
-		{`<a href="foo">テスト</a>`, []string{"foo"}},
+		{`<a href="foo">Foo</a>`, []string{"foo"}},
 		{`<ul><li><a href="/foo">Foo</a><li><a href="/bar">Bar</a></ul>`, []string{"/foo", "/bar"}},
 		{`<ul><li><a href="/foo">Foo</a><li><a href="/bar">Bar</a></ul><ul><li><a href="/hoge">Hoge</a><li><a href="/piyo">Piyo</a></ul>`, []string{"/foo", "/bar", "/hoge", "/piyo"}},
 	}
