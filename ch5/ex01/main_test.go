@@ -21,7 +21,7 @@ func TestEcho(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		descr := fmt.Sprintf("echo(%q)", test.args)
+		descr := fmt.Sprintf("visit(%q)", test.args)
 		doc, err := html.Parse(strings.NewReader(test.args))
 		if err != nil {
 			log.Fatal(err)

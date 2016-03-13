@@ -8,7 +8,7 @@ import (
 	"golang.org/x/net/html"
 )
 
-func visit(links []string, n *html.Node) []string {
+func getSource(links []string, n *html.Node) []string {
 	if n.Type == html.ElementNode && (n.Data == "script" || n.Data == "img" || n.Data == "style") {
 		for _, a := range n.Attr {
 			if a.Key == "src" {
@@ -17,17 +17,17 @@ func visit(links []string, n *html.Node) []string {
 		}
 	}
 	if n.FirstChild != nil {
-		links = visit(links, n.FirstChild)
+		links = getSource(links, n.FirstChild)
 	}
 	if n.NextSibling != nil {
-		links = visit(links, n.NextSibling)
+		links = getSource(links, n.NextSibling)
 	}
 	return links
 }
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Println("Usage: ./ex01 http://example.com")
+		fmt.Println("Usage: ./ex04 http://example.com")
 		os.Exit(1)
 	}
 	for _, url := range os.Args[1:] {
@@ -56,5 +56,5 @@ func findLinks(url string) ([]string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("parsing %s as HTML: %v", url, err)
 	}
-	return visit(nil, doc), nil
+	return getSource(nil, doc), nil
 }

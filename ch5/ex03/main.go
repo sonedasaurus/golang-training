@@ -8,22 +8,22 @@ import (
 	"golang.org/x/net/html"
 )
 
-func visit(links []string, n *html.Node) []string {
+func getText(links []string, n *html.Node) []string {
 	if n.Type == html.TextNode && (n.Parent).Data != "script" && (n.Parent).Data != "style" {
 		links = append(links, n.Data)
 	}
 	if n.FirstChild != nil {
-		links = visit(links, n.FirstChild)
+		links = getText(links, n.FirstChild)
 	}
 	if n.NextSibling != nil {
-		links = visit(links, n.NextSibling)
+		links = getText(links, n.NextSibling)
 	}
 	return links
 }
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Println("Usage: ./ex01 http://example.com")
+		fmt.Println("Usage: ./ex03 http://example.com")
 		os.Exit(1)
 	}
 	for _, url := range os.Args[1:] {
@@ -52,5 +52,5 @@ func findLinks(url string) ([]string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("parsing %s as HTML: %v", url, err)
 	}
-	return visit(nil, doc), nil
+	return getText(nil, doc), nil
 }

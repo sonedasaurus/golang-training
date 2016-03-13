@@ -22,12 +22,12 @@ func TestEcho(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		descr := fmt.Sprintf("visit(%q)", test.args)
+		descr := fmt.Sprintf("getSource(%q)", test.args)
 		doc, err := html.Parse(strings.NewReader(test.args))
 		if err != nil {
 			log.Fatal(err)
 		}
-		links := visit(nil, doc)
+		links := getSource(nil, doc)
 		if !reflect.DeepEqual(links, test.want) {
 			t.Errorf("%s", descr)
 			t.Errorf("got")
