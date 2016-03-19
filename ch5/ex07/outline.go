@@ -2,11 +2,14 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 
 	"golang.org/x/net/html"
 )
+
+var out io.Writer = os.Stdout // modified during testing
 
 func main() {
 	for _, url := range os.Args[1:] {
@@ -49,20 +52,37 @@ var depth int
 
 func startElement(n *html.Node) {
 	if n.Type == html.ElementNode && n.FirstChild == nil {
-		fmt.Printf("%*s<%s/>\n", depth*2, "", n.Data)
+		fmt.Fprintf(out, "%*s<%s/", depth*2, "", n.Data)
+		for _, a := range n.Attr {
+			fmt.Fprintf(out, " %s=\"%s\"", a.Key, a.Val)
+		}
+		fmt.Fprintf(out, ">\n")
+		depth++
+		return
 	}
 	if n.Type == html.ElementNode {
-		fmt.Printf("%*s<%s>\n", depth*2, "", n.Data)
+		fmt.Fprintf(out, "%*s<%s", depth*2, "", n.Data)
+		for _, a := range n.Attr {
+			fmt.Fprintf(out, " %s=\"%s\"", a.Key, a.Val)
+		}
+		fmt.Fprintf(out, ">\n")
 		depth++
+		return
 	}
 	if n.Type == html.TextNode {
-		fmt.Printf("%s\n", n.Data)
+		fmt.Fprintf(out, "%*s%s\n", depth*2, "", n.Data)
+		return
 	}
 }
 
 func endElement(n *html.Node) {
+	if n.Type == html.ElementNode && n.FirstChild == nil {
+		depth--
+		return
+	}
 	if n.Type == html.ElementNode {
 		depth--
-		fmt.Printf("%*s</%s>\n", depth*2, "", n.Data)
+		fmt.Fprintf(out, "%*s</%s>\n", depth*2, "", n.Data)
+		return
 	}
 }
