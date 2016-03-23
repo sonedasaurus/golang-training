@@ -7,9 +7,9 @@ import (
 )
 
 var prereqs = map[string][]string{
-	"algorithms":     {"data structures"},
-	"calculus":       {"linear algebra"},
-	"linear algebra": {"calculus"},
+	"algorithms": {"data structures"},
+	"calculus":   {"linear algebra"},
+	//"linear algebra": {"calculus"},
 
 	"compilers": {
 		"data structures",
@@ -35,31 +35,38 @@ func main() {
 func topoSort(m map[string][]string) []string {
 	var order []string
 	seen := make(map[string]bool)
-	var visitAll func(items []string, chk []string)
+	var visitAll func(items []string)
+	var check func(items, chk []string)
 
-	visitAll = func(items []string, chk []string) {
+	visitAll = func(items []string) {
 		for _, item := range items {
-			for i, c := range chk {
-				fmt.Printf("i = %d item = %s c = %s\n", i, item, c)
-				if item == c {
+			if !seen[item] {
+				seen[item] = true
+				visitAll(m[item])
+				order = append(order, item)
+			}
+		}
+	}
+
+	check = func(items, chk []string) {
+		for _, item := range items {
+			for _, c := range chk {
+				if c == item {
 					os.Exit(1)
 				}
 			}
 			chk = append(chk, item)
-			if !seen[item] {
-				seen[item] = true
-				visitAll(m[item], chk)
-				order = append(order, item)
-			}
+			check(m[item], chk)
 		}
 	}
 
 	var keys []string
 	for key := range m {
 		keys = append(keys, key)
+		check(m[key], nil)
 	}
 
 	sort.Strings(keys)
-	visitAll(keys, nil)
+	visitAll(keys)
 	return order
 }
