@@ -2,10 +2,12 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/url"
 	"os"
 
+	"./fetch"
 	"./links"
 )
 
@@ -25,9 +27,10 @@ func breadthFirst(f func(item string) []string, worklist []string) {
 
 func crawl(u string) []string {
 	parsedUrl, err := url.Parse(u)
-	if err := os.Mkdir("./archive/"+parsedUrl.Host, 0777); err != nil {
+	if err := os.MkdirAll("./archive/"+parsedUrl.Host+parsedUrl.Path, 0777); err != nil {
 		fmt.Println(err)
 	}
+	ioutil.WriteFile("./archive/"+parsedUrl.Host+parsedUrl.Path+"/archive.html", fetch.Fetch(u), os.ModePerm)
 	list, err := links.Extract(u)
 	if err != nil {
 		log.Print(err)
