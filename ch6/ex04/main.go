@@ -14,13 +14,13 @@ func main() {
 	x.Add(1)
 	x.Add(144)
 	x.Add(9)
-	xSlice := x.CreateSlice()
+	xSlice := x.Elems()
 	for key, value := range xSlice {
 		fmt.Printf("xSlice[%d] = %d\n", key, value)
 	}
 }
 
-func (s *IntSet) CreateSlice() []int {
+func (s *IntSet) Elems() []int {
 	var slice []int
 	for i, word := range s.words {
 		if word == 0 {
@@ -33,6 +33,16 @@ func (s *IntSet) CreateSlice() []int {
 		}
 	}
 	return slice
+}
+
+func (s *IntSet) AddAll(args ...int) {
+	for _, x := range args {
+		word, bit := x/64, uint(x%64)
+		for word >= len(s.words) {
+			s.words = append(s.words, 0)
+		}
+		s.words[word] |= 1 << bit
+	}
 }
 
 func (s *IntSet) Has(x int) bool {
