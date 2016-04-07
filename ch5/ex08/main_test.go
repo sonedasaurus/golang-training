@@ -37,9 +37,9 @@ func TestEcho(t *testing.T) {
 		if !reflect.DeepEqual(god, test.id) {
 			t.Errorf("%s", descr)
 			t.Errorf("got-------------------")
-			t.Errorf("id = %d\n", god)
+			t.Errorf("id = %s\n", god)
 			t.Errorf("expect---------------")
-			t.Errorf("id = %d\n", test.id)
+			t.Errorf("id = %s\n", test.id)
 		}
 	}
 }
