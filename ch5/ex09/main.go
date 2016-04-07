@@ -37,8 +37,7 @@ func expand(s string, f func(string) string) string {
 	fields := strings.Fields(s)
 	for _, field := range fields {
 		if strings.HasPrefix(field, "$") {
-			word := strings.TrimLeft(field, "$")
-			s = strings.Replace(s, word, f(word), 1)
+			s = strings.Replace(s, field, f(strings.TrimLeft(field, "$")), 1)
 		}
 	}
 	return s
