@@ -10,7 +10,7 @@ import (
 	"golang.org/x/net/html"
 )
 
-func TestEcho(t *testing.T) {
+func TestGetText(t *testing.T) {
 	var tests = []struct {
 		args string
 		want []string

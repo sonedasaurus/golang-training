@@ -47,7 +47,7 @@ func countWordsAndImages(n *html.Node) (words, images int) {
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Println("Usage: ./ex04 http://example.com")
+		fmt.Println("Usage: ./ex05 http://example.com")
 		os.Exit(1)
 	}
 	for _, url := range os.Args[1:] {
