@@ -1,5 +1,7 @@
 package main
 
+import "strconv"
+
 type tree struct {
 	value       int
 	left, right *tree
@@ -10,12 +12,12 @@ func (t *tree) String() string {
 }
 
 func getTreeValue(s string, t *tree) string {
-	s = s + " " + string(t.value)
+	s = strconv.Itoa(t.value)
 	if t.left != nil {
-		s = s + getTreeValue(s, t.left)
+		s = s + " " + getTreeValue(s, t.left)
 	}
 	if t.right != nil {
-		s = s + getTreeValue(s, t.right)
+		s = s + " " + getTreeValue(s, t.right)
 	}
 	return s
 }
