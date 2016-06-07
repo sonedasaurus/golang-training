@@ -37,7 +37,7 @@ func (b binary) Vars() []string {
 func (c call) Vars() []string {
 	switch c.fn {
 	case "pow":
-		return append(c.args[0].Vars(), c.args[1].Vars()...)
+		return append(c.args[0].Vars(), c.args[0].Vars()...)
 	case "sin":
 		return c.args[0].Vars()
 	case "sqrt":
@@ -45,3 +45,5 @@ func (c call) Vars() []string {
 	}
 	panic(fmt.Sprintf("unsupported function call: %s", c.fn))
 }
+
+//!-Eval2
