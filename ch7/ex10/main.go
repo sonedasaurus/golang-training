@@ -1,9 +1,6 @@
 package main
 
-import (
-	"fmt"
-	"sort"
-)
+import "sort"
 
 type StringSort []string
 
@@ -19,25 +16,4 @@ func IsPalindrome(s sort.Interface) bool {
 		}
 	}
 	return true
-}
-
-func main() {
-	var test = StringSort{"test1", "test2", "test1"}
-	var test2 = StringSort{"test1", "test2", "test3"}
-	var test3 = StringSort{"test1", "test2", "test3", "test2", "test1"}
-	if IsPalindrome(test) {
-		fmt.Println("test is Palindrome")
-	} else {
-		fmt.Println("test is Palindrome")
-	}
-	if IsPalindrome(test2) {
-		fmt.Println("test2 is Palindrome")
-	} else {
-		fmt.Println("test2 is not Palindrome")
-	}
-	if IsPalindrome(test3) {
-		fmt.Println("test3 is Palindrome")
-	} else {
-		fmt.Println("test3 is not Palindrome")
-	}
 }
