@@ -11,11 +11,11 @@ import (
 )
 
 type Conn struct {
-	root       string
+	rootDir    string
 	workdir    string
 	reqUser    string
 	user       string
-	namePrefix string
+	currentDir string
 	granted    bool
 	dataType   string
 	ctrlConn   *net.TCPConn
@@ -45,10 +45,12 @@ func (conn *Conn) handleCommand(line string) {
 	case "CWD":
 		conn.handleCwdCommand(opc, opr)
 		return
-	case "CDUP":
-		// return s.handleCdupCommand(opc, opr)
+	case "PWD":
+		conn.handlePwdCommand(opc, opr)
+		return
 	case "QUIT":
-		// return s.handleQuitCommand(opc, opr)
+		conn.handleQuitCommand(opc, opr)
+		return
 
 	// TRANSFER PARAMETER COMMANDS
 	case "PORT":
@@ -63,12 +65,6 @@ func (conn *Conn) handleCommand(line string) {
 	// FTP SERVICE COMMANDS
 	case "RETR":
 		// return s.handleRetrCommand(opc, opr)
-	case "LIST":
-		// return s.handleListCommand(opc, opr)
-	case "NLST":
-		// return s.handleListCommand(opc, opr)
-	case "PWD":
-		// return s.handlePwdCommand(opc, opr)
 
 	default:
 		conn.writeMessage(500, "%s not understood", opc)
@@ -99,13 +95,25 @@ func (conn *Conn) handlePassCommand(opc string, opr []string) {
 
 func (conn *Conn) handleCwdCommand(opc string, opr []string) {
 	path := conn.buildPath(opr[0])
-	// conn.workPath := conn.driver.ChangeDir(path)
-	// if err == nil {
-	conn.namePrefix = path
+	if f, err := os.Stat(conn.rootDir + path); err != nil || !f.IsDir() {
+		conn.writeMessage(550, "Failed to change directory.")
+		return
+	}
+	conn.currentDir = path
 	conn.writeMessage(250, "Directory changed to "+path)
-	// } else {
-	// conn.writeMessage(550, fmt.Sprintln("Directory change to", path, "failed:", err))
-	// }
+}
+
+func (conn *Conn) handlePwdCommand(opc string, opr []string) {
+	message := fmt.Sprintf("\"%s\" is the current directory", conn.currentDir)
+	conn.writeMessage(257, message)
+}
+
+func (conn *Conn) handleRetlCommand(opc string, opr []string) {
+}
+
+func (conn *Conn) handleQuitCommand(opc string, opr []string) {
+	conn.writeMessage(221, "Goodbye")
+	conn.ctrlConn.Close()
 }
 
 func (conn *Conn) checkPasswd(user string, pass string) (bool, error) {
@@ -117,9 +125,9 @@ func (conn *Conn) buildPath(filename string) string {
 	if len(filename) > 0 && filename[0:1] == "/" {
 		fullPath = filepath.Clean(filename)
 	} else if len(filename) > 0 && filename != "-a" {
-		fullPath = filepath.Clean(conn.namePrefix + "/" + filename)
+		fullPath = filepath.Clean(conn.currentDir + "/" + filename)
 	} else {
-		fullPath = filepath.Clean(conn.namePrefix)
+		fullPath = filepath.Clean(conn.currentDir)
 	}
 	fullPath = strings.Replace(fullPath, "//", "/", -1)
 	return fullPath
@@ -128,13 +136,9 @@ func (conn *Conn) buildPath(filename string) string {
 func startSession(conn *net.TCPConn) {
 	var c Conn
 	c.ctrlConn = conn
-	if root, err := os.Getwd(); err == nil {
-		c.root = root
-	} else {
-		log.Fatal(err)
-	}
-	if workdir, err := os.Getwd(); err == nil {
-		c.workdir = workdir
+	if rootDir, err := os.Getwd(); err == nil {
+		fmt.Println(rootDir)
+		c.rootDir = rootDir
 	} else {
 		log.Fatal(err)
 	}
