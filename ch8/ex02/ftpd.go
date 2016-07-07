@@ -3,10 +3,12 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"net"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 )
 
@@ -19,7 +21,7 @@ type Conn struct {
 	granted    bool
 	dataType   string
 	ctrlConn   *net.TCPConn
-	clientAddr *net.TCPAddr
+	dataConn   *net.TCPConn
 }
 
 func (conn *Conn) writeMessage(code int, message string, v ...interface{}) error {
@@ -54,17 +56,22 @@ func (conn *Conn) handleCommand(line string) {
 
 	// TRANSFER PARAMETER COMMANDS
 	case "PORT":
-		// return s.handlePortCommand(opc, opr)
+		conn.handlePortCommand(opc, opr)
+		return
 	case "TYPE":
-		// return s.handleTypeCommand(opc, opr)
+		conn.handleTypeCommand(opc, opr)
+		return
 	case "STRU":
-		// return s.handleStruCommand(opc, opr)
+		conn.handleStruCommand(opc, opr)
+		return
 	case "MODE":
-		// return s.handleModeCommand(opc, opr)
+		conn.handleModeCommand(opc, opr)
+		return
 
 	// FTP SERVICE COMMANDS
 	case "RETR":
-		// return s.handleRetrCommand(opc, opr)
+		conn.handleRetrCommand(opc, opr)
+		return
 
 	default:
 		conn.writeMessage(500, "%s not understood", opc)
@@ -116,6 +123,65 @@ func (conn *Conn) handleQuitCommand(opc string, opr []string) {
 	conn.ctrlConn.Close()
 }
 
+func (conn *Conn) handlePortCommand(opc string, opr []string) {
+	nums := strings.Split(opr[0], ",")
+	portOne, _ := strconv.Atoi(nums[4])
+	portTwo, _ := strconv.Atoi(nums[5])
+	port := (portOne * 256) + portTwo
+	host := nums[0] + "." + nums[1] + "." + nums[2] + "." + nums[3]
+	dataConn, err := newSocket(host, port)
+	if err != nil {
+		conn.writeMessage(425, "Data connection failed")
+		return
+	}
+	conn.dataConn = dataConn
+	conn.writeMessage(200, "Connection established ("+strconv.Itoa(port)+")")
+}
+
+func (conn *Conn) handleTypeCommand(opc string, opr []string) {
+	if strings.ToUpper(opr[0]) == "A" {
+		conn.writeMessage(200, "Type set to ASCII")
+	} else if strings.ToUpper(opr[0]) == "I" {
+		conn.writeMessage(200, "Type set to binary")
+	} else {
+		conn.writeMessage(500, "Invalid type")
+	}
+}
+
+func (conn *Conn) handleStruCommand(opc string, opr []string) {
+	if strings.ToUpper(opr[0]) == "F" {
+		conn.writeMessage(200, "OK")
+	} else {
+		conn.writeMessage(504, "STRU is an obsolete command")
+	}
+}
+
+func (conn *Conn) handleModeCommand(opc string, opr []string) {
+	if strings.ToUpper(opr[0]) == "S" {
+		conn.writeMessage(200, "OK")
+	} else {
+		conn.writeMessage(504, "MODE is an obsolete command")
+	}
+}
+
+func (conn *Conn) handleRetrCommand(opc string, opr []string) {
+	fmt.Println("test")
+	path := conn.buildPath(opr[0])
+	f, err := os.Open(conn.rootDir + path)
+	if err != nil {
+		conn.writeMessage(550, "Failed to open file.")
+		return
+	}
+	defer f.Close()
+
+	conn.writeMessage(150, "Data transfer starting")
+	fmt.Println("test2")
+	io.Copy(conn.dataConn, f)
+	fmt.Println("test3")
+	conn.writeMessage(226, "Transfer complete.")
+	return
+}
+
 func (conn *Conn) checkPasswd(user string, pass string) (bool, error) {
 	return true, nil
 }
@@ -131,6 +197,38 @@ func (conn *Conn) buildPath(filename string) string {
 	}
 	fullPath = strings.Replace(fullPath, "//", "/", -1)
 	return fullPath
+}
+
+func newSocket(host string, port int) (*net.TCPConn, error) {
+	connectTo := buildTCPString(host, port)
+	raddr, err := net.ResolveTCPAddr("tcp", connectTo)
+	if err != nil {
+		return nil, err
+	}
+	tcpConn, err := net.DialTCP("tcp", nil, raddr)
+	if err != nil {
+		return nil, err
+	}
+	return tcpConn, nil
+}
+
+func buildTCPString(hostname string, port int) (result string) {
+	if strings.Contains(hostname, ":") {
+		// ipv6
+		if port == 0 {
+			result = "[" + hostname + "]"
+		} else {
+			result = "[" + hostname + "]:" + strconv.Itoa(port)
+		}
+	} else {
+		// ipv4
+		if port == 0 {
+			result = hostname
+		} else {
+			result = hostname + ":" + strconv.Itoa(port)
+		}
+	}
+	return
 }
 
 func startSession(conn *net.TCPConn) {
