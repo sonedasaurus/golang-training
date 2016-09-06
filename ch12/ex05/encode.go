@@ -17,7 +17,7 @@ func Marshal(v interface{}) ([]byte, error) {
 func encode(buf *bytes.Buffer, v reflect.Value, depth int) error {
 	switch v.Kind() {
 	case reflect.Invalid:
-		buf.WriteString("nil")
+		buf.WriteString("null")
 
 	case reflect.Int, reflect.Int8, reflect.Int16,
 		reflect.Int32, reflect.Int64:
@@ -57,7 +57,7 @@ func encode(buf *bytes.Buffer, v reflect.Value, depth int) error {
 				fmt.Fprintf(buf, "\n%*s", depth, "")
 			}
 			start := buf.Len()
-			fmt.Fprintf(buf, "(%s ", v.Type().Field(i).Name)
+			fmt.Fprintf(buf, "%q:", v.Type().Field(i).Name)
 			if err := encode(buf, v.Field(i), depth+buf.Len()-start); err != nil {
 				return err
 			}
