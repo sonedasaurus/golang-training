@@ -1,6 +1,3 @@
-// Copyright © 2016 Alan A. A. Donovan & Brian W. Kernighan.
-// License: https://creativecommons.org/licenses/by-nc-sa/4.0/
-
 package display
 
 import (
@@ -14,14 +11,9 @@ import (
 	"./eval"
 )
 
-// NOTE: we can't use !+..!- comments to excerpt these tests
-// into the book because it defeats the Example mechanism,
-// which requires the // Output comment to be at the end
-// of the function.
-
 func Example_expr() {
 	e, _ := eval.Parse("sqrt(A / pi)")
-	Display("e", e)
+	Display("e", e, 7)
 	// Output:
 	// Display e (eval.call):
 	// e.fn = "sqrt"
@@ -31,10 +23,11 @@ func Example_expr() {
 	// e.args[0].value.x.value = "A"
 	// e.args[0].value.y.type = eval.Var
 	// e.args[0].value.y.value = "pi"
+
 }
 
 func Example_slice() {
-	Display("slice", []*int{new(int), nil})
+	Display("slice", []*int{new(int), nil}, 2)
 	// Output:
 	// Display slice ([]*int):
 	// (*slice[0]) = 0
@@ -43,7 +36,7 @@ func Example_slice() {
 
 func Example_nilInterface() {
 	var w io.Writer
-	Display("w", w)
+	Display("w", w, 1)
 	// Output:
 	// Display w (<nil>):
 	// w = invalid
@@ -51,14 +44,14 @@ func Example_nilInterface() {
 
 func Example_ptrToInterface() {
 	var w io.Writer
-	Display("&w", &w)
+	Display("&w", &w, 1)
 	// Output:
 	// Display &w (*io.Writer):
 	// (*&w) = nil
 }
 
 func Example_struct() {
-	Display("x", struct{ x interface{} }{3})
+	Display("x", struct{ x interface{} }{3}, 2)
 	// Output:
 	// Display x (struct { x interface {} }):
 	// x.x.type = int
@@ -67,7 +60,7 @@ func Example_struct() {
 
 func Example_interface() {
 	var i interface{} = 3
-	Display("i", i)
+	Display("i", i, 1)
 	// Output:
 	// Display i (int):
 	// i = 3
@@ -75,7 +68,7 @@ func Example_interface() {
 
 func Example_ptrToInterface2() {
 	var i interface{} = 3
-	Display("&i", &i)
+	Display("&i", &i, 2)
 	// Output:
 	// Display &i (*interface {}):
 	// (*&i).type = int
@@ -83,7 +76,7 @@ func Example_ptrToInterface2() {
 }
 
 func Example_array() {
-	Display("x", [1]interface{}{3})
+	Display("x", [1]interface{}{3}, 2)
 	// Output:
 	// Display x ([1]interface {}):
 	// x[0].type = int
@@ -124,7 +117,7 @@ func Example_movie() {
 		},
 	}
 	//!-strangelove
-	Display("strangelove", strangelove)
+	Display("strangelove", strangelove, 15)
 
 	// We don't use an Output: comment since displaying
 	// a map is nondeterministic.
@@ -153,7 +146,7 @@ func Example_movie() {
 // This test ensures that the program terminates without crashing.
 func Test(t *testing.T) {
 	// Some other values (YMMV)
-	Display("os.Stderr", os.Stderr)
+	Display("os.Stderr", os.Stderr, 3)
 	// Output:
 	// Display os.Stderr (*os.File):
 	// (*(*os.Stderr).file).fd = 2
@@ -161,7 +154,7 @@ func Test(t *testing.T) {
 	// (*(*os.Stderr).file).nepipe = 0
 
 	var w io.Writer = os.Stderr
-	Display("&w", &w)
+	Display("&w", &w, 4)
 	// Output:
 	// Display &w (*io.Writer):
 	// (*&w).type = *os.File
@@ -170,14 +163,14 @@ func Test(t *testing.T) {
 	// (*(*(*&w).value).file).nepipe = 0
 
 	var locker sync.Locker = new(sync.Mutex)
-	Display("(&locker)", &locker)
+	Display("(&locker)", &locker, 3)
 	// Output:
 	// Display (&locker) (*sync.Locker):
 	// (*(&locker)).type = *sync.Mutex
 	// (*(*(&locker)).value).state = 0
 	// (*(*(&locker)).value).sema = 0
 
-	Display("locker", locker)
+	Display("locker", locker, 3)
 	// Output:
 	// Display locker (*sync.Mutex):
 	// (*locker).state = 0
@@ -185,20 +178,20 @@ func Test(t *testing.T) {
 	// (*(&locker)) = nil
 
 	locker = nil
-	Display("(&locker)", &locker)
+	Display("(&locker)", &locker, 2)
 	// Output:
 	// Display (&locker) (*sync.Locker):
 	// (*(&locker)) = nil
 
 	ips, _ := net.LookupHost("golang.org")
-	Display("ips", ips)
+	Display("ips", ips, 2)
 	// Output:
 	// Display ips ([]string):
 	// ips[0] = "173.194.68.141"
 	// ips[1] = "2607:f8b0:400d:c06::8d"
 
 	// Even metarecursion!  (YMMV)
-	Display("rV", reflect.ValueOf(os.Stderr))
+	Display("rV", reflect.ValueOf(os.Stderr), 4)
 	// Output:
 	// Display rV (reflect.Value):
 	// (*rV.typ).size = 8
@@ -212,7 +205,7 @@ func Test(t *testing.T) {
 	var p P
 	p = &p
 	if false {
-		Display("p", p)
+		Display("p", p, 0)
 		// Output:
 		// Display p (display.P):
 		// ...stuck, no output...
@@ -223,7 +216,7 @@ func Test(t *testing.T) {
 	m := make(M)
 	m[""] = m
 	if false {
-		Display("m", m)
+		Display("m", m, 0)
 		// Output:
 		// Display m (display.M):
 		// ...stuck, no output...
@@ -234,7 +227,7 @@ func Test(t *testing.T) {
 	s := make(S, 1)
 	s[0] = s
 	if false {
-		Display("s", s)
+		Display("s", s, 0)
 		// Output:
 		// Display s (display.S):
 		// ...stuck, no output...
@@ -248,7 +241,7 @@ func Test(t *testing.T) {
 	var c Cycle
 	c = Cycle{42, &c}
 	if false {
-		Display("c", c)
+		Display("c", c, 2)
 		// Output:
 		// Display c (display.Cycle):
 		// c.Value = 42
@@ -256,4 +249,26 @@ func Test(t *testing.T) {
 		// (*(*c.Tail).Tail).Value = 42
 		// ...ad infinitum...
 	}
+}
+
+func TestMapKeys(t *testing.T) {
+	sm := map[struct{ x int }]int{
+		{1}: 2,
+		{2}: 3,
+	}
+	Display("sm", sm, 2)
+	// Output:
+	// Display sm (map[struct { x int }]int):
+	// sm[{x: 2}] = 3
+	// sm[{x: 1}] = 2
+
+	am := map[[3]int]int{
+		{1, 2, 3}: 3,
+		{2, 3, 4}: 4,
+	}
+	Display("am", am, 2)
+	// Output:
+	// Display am (map[[3]int]int):
+	// am[{1, 2, 3}] = 3
+	// am[{2, 3, 4}] = 4
 }
