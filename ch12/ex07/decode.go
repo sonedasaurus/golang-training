@@ -32,10 +32,6 @@ func (d *Decoder) Decode(out interface{}) (err error) {
 	return nil
 }
 
-func (d *Decoder) More() bool {
-	return d.lex.token != scanner.EOF
-}
-
 func Unmarshal(data []byte, out interface{}) (err error) {
 	lex := &lexer{scan: scanner.Scanner{Mode: scanner.GoTokens}}
 	lex.scan.Init(bytes.NewReader(data))
