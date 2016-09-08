@@ -106,12 +106,12 @@ func TestInterface(t *testing.T) {
 	type Wrapper struct {
 		i Interface
 	}
-	w := Wrapper{3}
+	w := Wrapper{[]int{1, 2, 3}}
 	data, err := Marshal(w)
 	if err != nil {
 		t.Errorf("Marshal(%s): %s", err)
 	}
-	want := `((i ("sexpr.Interface" 3)))`
+	want := `((i ("[]int" (1 2 3))))`
 	if string(data) != want {
 		t.Errorf("Marshal(%s) got %s, wanted %s", w, data, want)
 	}

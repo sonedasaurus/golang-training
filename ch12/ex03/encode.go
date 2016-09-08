@@ -92,8 +92,8 @@ func encode(buf *bytes.Buffer, v reflect.Value) error {
 		fmt.Fprintf(buf, "#C(%g %g)", real(c), imag(c))
 
 	case reflect.Interface:
-		fmt.Fprintf(buf, "(%q ", reflect.Indirect(v).Type())
-		encode(buf, reflect.Indirect(v).Elem())
+		fmt.Fprintf(buf, "(%q ", v.Elem().Type().String())
+		encode(buf, v.Elem())
 		buf.WriteByte(')')
 
 	default:
