@@ -16,8 +16,8 @@ func Pack(ptr interface{}) (url.URL, error) {
 	}
 	vals := &url.Values{}
 	for i := 0; i < v.NumField(); i++ {
-		fieldInfo := v.Type().Field(i) // a reflect.StructField
-		tag := fieldInfo.Tag           // a reflect.StructTag
+		fieldInfo := v.Type().Field(i)
+		tag := fieldInfo.Tag
 		name := tag.Get("http")
 		if name == "" {
 			name = strings.ToLower(fieldInfo.Name)
@@ -32,7 +32,6 @@ func Unpack(req *http.Request, ptr interface{}) error {
 		return err
 	}
 
-	// Build map of fields keyed by effective name.
 	fields := make(map[string]reflect.Value)
 	v := reflect.ValueOf(ptr).Elem() // the struct variable
 	for i := 0; i < v.NumField(); i++ {
@@ -45,7 +44,6 @@ func Unpack(req *http.Request, ptr interface{}) error {
 		fields[name] = v.Field(i)
 	}
 
-	// Update struct field for each parameter in the request.
 	for name, values := range req.Form {
 		f := fields[name]
 		if !f.IsValid() {
